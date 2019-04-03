@@ -86,7 +86,14 @@ BasicHashTable *create_hash_table(int capacity)
  ****/
 void hash_table_insert(BasicHashTable *ht, char *key, char *value)
 {
-
+  Pair *pair = create_pair(key, value);
+  int index = hash(key, ht->capacity);
+  if (ht->storage[index])
+  {
+    perror("Collision!");
+    destroy_pair(ht->storage[index]);
+  }
+  ht->storage[index] = pair;
 }
 
 /****
@@ -96,7 +103,17 @@ void hash_table_insert(BasicHashTable *ht, char *key, char *value)
  ****/
 void hash_table_remove(BasicHashTable *ht, char *key)
 {
-
+  int index = hash(key, ht->capacity);
+  Pair *pair = ht->storage[index];
+  if (pair)
+  {
+    destroy_pair(pair);
+    ht->storage[index] = 0;
+  }
+  else
+  {
+    perror("Key is not defined.");
+  }
 }
 
 /****
@@ -106,7 +123,16 @@ void hash_table_remove(BasicHashTable *ht, char *key)
  ****/
 char *hash_table_retrieve(BasicHashTable *ht, char *key)
 {
-  return NULL;
+  int index = hash(key, ht->capacity);
+  Pair *pair = ht->storage[index];
+  if (pair)
+  {
+    return pair->value;
+  }
+  else
+  {
+    return NULL;
+  }
 }
 
 /****
