@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <stdbool.h>
 /*
   Hash table key/value pair with linked list pointer.
 
@@ -128,7 +128,38 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
  */
 void hash_table_remove(HashTable *ht, char *key)
 {
+  int index = hash(key, ht->capacity);
+  LinkedPair *current = ht->storage[index];
+  int found = 0;
+  
+  if (current)
+  {
+    if (strcmp(current->key, key) == 0) {
+      // possible crash source
+      ht->storage[index] = current->next;
+      found = 1;
+    // infinite loop until key is found or linkedPairs are exhausted
+    } else {
+      while(true)
+      {
+        if (current->next == NULL)
+        {
+          break;
+        } else if (strcmp(current->next->key, key) == 0) {
+          LinkedPair *deleted = current->next;
+          current->next = current->next->next;
+          destroy_pair(deleted);
+          found = 1;
+          break;
+        }
+        current = current->next;
+      }
+    }
+  }
 
+  if (!found) {
+    perror("Key not found!");
+  }
 }
 
 /*
@@ -141,7 +172,35 @@ void hash_table_remove(HashTable *ht, char *key)
  */
 char *hash_table_retrieve(HashTable *ht, char *key)
 {
-  return NULL;
+   int index = hash(key, ht->capacity);
+  if (ht->storage[index])
+  {
+    LinkedPair *current = ht->storage[index];
+    int found = 0;
+    char *value;
+    while (!found)
+    {
+      if (strcmp(current->key, key) == 0)
+      {
+        value = current->value;
+        found = 1;
+      }
+      else if (current->next == NULL)
+      {
+        break;
+      }
+      current = current->next;
+    }
+    if (!found) {
+      return NULL;
+    } else {
+      return value;
+    }
+  }
+  else
+  {
+    return NULL;
+  }
 }
 
 /*
