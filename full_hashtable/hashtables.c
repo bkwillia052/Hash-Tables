@@ -210,7 +210,17 @@ char *hash_table_retrieve(HashTable *ht, char *key)
  */
 void destroy_hash_table(HashTable *ht)
 {
+  for (int i = 0; i < ht->capacity; i++) {
+    LinkedPair *current = ht->storage[i];
 
+    while (current) {
+      LinkedPair *next = current->next;
+      destroy_pair(current);
+      current = next;
+    }
+  }
+  free(ht->storage);
+  free(ht);
 }
 
 /*
